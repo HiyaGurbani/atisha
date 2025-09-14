@@ -1,0 +1,828 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  name     String
+  password String
+
+  @@map("admins")
+}
+
+model roles {
+  id        Int       @id @default(autoincrement())
+  role_name role_type @unique
+  users     users[]
+
+  @@map("roles")
+}
+
+model users {
+  id                        Int                      @id @default(autoincrement())
+  name                      String                   @db.VarChar(100)
+  email                     String                   @unique @db.VarChar(100)
+  password                  String                   @db.VarChar(255)
+  role_id                   Int?
+  created_at                DateTime                 @default(now())
+  updated_at                DateTime?                @updatedAt
+  chat_messages             chat_messages[]
+  user1_conversations       conversations[]          @relation("User1Conversations")
+  user2_conversations       conversations[]          @relation("User2Conversations")
+  counselor_availability    counselor_availability[]
+  counselor_bookings        counselor_bookings[]     @relation("counselor_bookings")
+  student_bookings          counselor_bookings[]     @relation("student_bookings")
+  counselor_education       counselor_education?
+  counselor_personal_info   counselor_personal_info?
+  counselor_professional    counselor_professional?
+  event_attendance          event_attendance[]
+  event_registrations       event_registrations[]
+  event_requests            event_requests[]
+  event                     events[]
+  institute_info            institute_info?
+  institute_spoc            institute_spoc[]
+  institutesAsInstitute     institute_student[]      @relation("InstituteRelation")
+  studentsAsStudent         institute_student[]      @relation("StudentRelation")
+  mentor_availability       mentor_availability[]
+  mentor_bookings           mentor_bookings[]        @relation("mentor_bookings")
+  mentor_student_bookings   mentor_bookings[]        @relation("student_mentor_bookings")
+  mentors                   mentors?
+  notifications             notifications[]
+  programs                  programs?
+  recommended_careers       recommended_careers[]
+  session_reports_counselor session_reports[]        @relation("CounselorSessions")
+  session_reports_mentor    session_reports[]        @relation("MentorSessions")
+  session_reports_student   session_reports[]        @relation("StudentSessions")
+  counselor_sessions        sessions[]               @relation("Counselorsessionss")
+  student_sessions          sessions[]               @relation("Studentsessionss")
+  student_education         student_education?
+  student_interest          student_interest?
+  student_personal_info     student_personal_info?
+  task_recommendations      task_recommendations[]
+  user_levels               user_levels[]
+  user_traits_status        user_traits_status?
+  role                      roles?                   @relation(fields: [role_id], references: [id])
+  webex_tokens              webex_tokens?
+  sessions                  sessions[]               @relation("sessionsTousers")
+
+  @@map("users")
+}
+
+model notifications {
+  id           Int       @id @default(autoincrement())
+  recipient_id Int
+  content      String
+  is_read      Boolean   @default(false)
+  category     String
+  read_at      DateTime?
+  canceled_at  DateTime?
+  created_at   DateTime  @default(now())
+  link         String?
+  users        users     @relation(fields: [recipient_id], references: [id])
+
+  @@index([recipient_id])
+  @@map("notifications")
+}
+
+model conversations {
+  id              Int             @id @default(autoincrement())
+  user1_id        Int
+  user2_id        Int
+  last_message    String?
+  last_message_at DateTime?
+  created_at      DateTime        @default(now())
+  chat_messages   chat_messages[]
+  user1           users           @relation("User1Conversations", fields: [user1_id], references: [id])
+  user2           users           @relation("User2Conversations", fields: [user2_id], references: [id])
+
+  @@unique([user1_id, user2_id])
+  @@map("conversations")
+}
+
+model chat_messages {
+  id              Int           @id @default(autoincrement())
+  conversation_id Int
+  sender_id       Int
+  message_content String
+  sent_at         DateTime      @default(now())
+  is_read         Boolean       @default(false)
+  conversation    conversations @relation(fields: [conversation_id], references: [id])
+  sender          users         @relation(fields: [sender_id], references: [id])
+
+  @@map("chat_messages")
+}
+
+model master_subjects {
+  id           Int    @id @default(autoincrement())
+  subject_name String @unique @db.VarChar(100)
+
+  @@map("master_subjects")
+}
+
+model master_sports {
+  id         Int    @id @default(autoincrement())
+  sport_name String @unique @db.VarChar(100)
+
+  @@map("master_sports")
+}
+
+model master_hobbies {
+  id         Int    @id @default(autoincrement())
+  hobby_name String @unique @db.VarChar(100)
+
+  @@map("master_hobbies")
+}
+
+model student_personal_info {
+  user_id        Int         @id
+  image          String?
+  dob            DateTime?
+  gender         gender_enum
+  location       String?
+  contact_number String?
+  user           users       @relation(fields: [user_id], references: [id])
+
+  @@map("student_personal_info")
+}
+
+model student_education {
+  user_id     Int    @id
+  school_name String @db.VarChar(255)
+  class       Int
+  user        users  @relation(fields: [user_id], references: [id])
+
+  @@map("student_education")
+}
+
+model student_interest {
+  user_id     Int   @id
+  subject_ids Int[] @default([])
+  sport_ids   Int[] @default([])
+  hobby_ids   Int[] @default([])
+  user        users @relation(fields: [user_id], references: [id])
+
+  @@map("student_interest")
+}
+
+model counselor_personal_info {
+  user_id        Int         @id
+  image          String?
+  dob            DateTime?
+  gender         gender_enum
+  location       String?
+  contact_number String?
+  user           users       @relation(fields: [user_id], references: [id])
+
+  @@map("counselor_personal_info")
+}
+
+model counselor_education {
+  user_id      Int    @id
+  degree       String @db.VarChar(255)
+  degree_image String
+  association  String
+  user         users  @relation(fields: [user_id], references: [id])
+
+  @@map("counselor_education")
+}
+
+model counselor_professional {
+  user_id               Int                                @id
+  bio                   String?
+  year_of_experience    Int?
+  certificates          String[]
+  counselor_type        counselor_type_enum
+  counselor_speciality  counselor_specialization_type_enum
+  career_specialization String[]
+  user                  users                              @relation(fields: [user_id], references: [id])
+
+  @@map("counselor_professional")
+}
+
+model sessions {
+  session_id   Int               @id @default(autoincrement())
+  student_id   Int?
+  counselor_id Int?
+  session_time DateTime?
+  session_date DateTime?
+  session_type session_type_enum
+  location     String            @default("remote")
+  counselor    users?            @relation("Counselorsessionss", fields: [counselor_id], references: [id])
+  student      users?            @relation("Studentsessionss", fields: [student_id], references: [id])
+  users        users[]           @relation("sessionsTousers")
+
+  @@map("sessions")
+}
+
+model institute_spoc {
+  id             Int    @id @default(autoincrement())
+  user_id        Int
+  name           String
+  email          String
+  contact_number String
+  user           users  @relation(fields: [user_id], references: [id])
+
+  @@map("institute_spoc")
+}
+
+model mentors {
+  user_id             Int                  @id
+  image_url           String?
+  expertise           String?
+  bio                 String?
+  created_at          DateTime             @default(now())
+  updated_at          DateTime?
+  certifications      String[]
+  location            String
+  mentor_education    mentor_education?
+  mentor_professional mentor_professional?
+  user                users                @relation(fields: [user_id], references: [id])
+
+  @@map("mentors")
+}
+
+model mentor_education {
+  user_id     Int     @id
+  degree      String?
+  institution String?
+  mentor      mentors @relation(fields: [user_id], references: [user_id])
+
+  @@map("mentor_education")
+}
+
+model mentor_professional {
+  user_id            Int              @id
+  bio                String?
+  linkedin_profile   String?
+  year_of_experience Int?
+  type               mentor_type_enum
+  mentor             mentors          @relation(fields: [user_id], references: [user_id])
+
+  @@map("mentor_professional")
+}
+
+model programs {
+  institute_id                Int     @id
+  subjects                    String?
+  special_programs            String?
+  language_offer              String?
+  certificate_and_affiliation String?
+  institute                   users   @relation(fields: [institute_id], references: [id])
+
+  @@map("programs")
+}
+
+model events {
+  id                  Int                   @id @default(autoincrement()) @map("id")
+  name                String                @map("name") @db.VarChar(255)
+  description         String?               @map("description")
+  event_type          event_type_enum       @map("event_type")
+  start_date          DateTime              @map("start_date")
+  end_date            DateTime?             @map("end_date")
+  duration            Int?
+  capacity            Int?                  @map("capacity")
+  link                String?               @map("link") @db.VarChar(255)
+  status              String?               @default("pending") @map("status") @db.VarChar(50)
+  event_mode          event_mode_enum       @map("event_mode")
+  organizer_id        Int?                  @map("organizer_id")
+  created_at          DateTime              @default(now()) @map("created_at")
+  city                String?               @map("city") @db.VarChar(50)
+  state               String?               @map("state") @db.VarChar(50)
+  image               String?               @map("image") @db.VarChar(255)
+  event_attendance    event_attendance[]
+  event_registrations event_registrations[]
+  event_requests      event_requests[]
+  organizer           users?                @relation(fields: [organizer_id], references: [id])
+
+  @@map("events")
+}
+
+model event_requests {
+  id         Int                        @id @default(autoincrement())
+  event_id   Int?
+  role       String?                    @db.VarChar(50)
+  user_id    Int
+  created_at DateTime                   @default(now())
+  status     event_requests_status_enum @default(pending)
+  is_active  Boolean                    @default(true)
+  event      events?                    @relation(fields: [event_id], references: [id])
+  user       users                      @relation(fields: [user_id], references: [id])
+
+  @@map("event_requests")
+}
+
+model event_registrations {
+  id         Int      @id @default(autoincrement())
+  event_id   Int?
+  student_id Int
+  status     String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  event      events?  @relation(fields: [event_id], references: [id])
+  student    users    @relation(fields: [student_id], references: [id])
+
+  @@map("event_registrations")
+}
+
+model quiz_questions {
+  id         Int       @id @default(autoincrement())
+  category   String
+  traits     String?
+  question   String    @unique
+  answer     String?
+  options    String[]
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+  class      Int
+
+  @@map("quiz_questions")
+}
+
+model user_traits_status {
+  id                  Int      @id @default(autoincrement())
+  user_id             Int      @unique
+  holland_code_traits String[]
+  big_five_traits     String[]
+  aptitude_status     String?
+  iq_status           String?
+  created_at          DateTime @default(now())
+  traits_counter      Int      @default(0)
+  user                users    @relation(fields: [user_id], references: [id])
+
+  @@map("user_traits_status")
+}
+
+model recommended_careers {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  career1    String?
+  career2    String?
+  career3    String?
+  created_at DateTime @default(now())
+  user       users    @relation(fields: [user_id], references: [id])
+
+  @@map("recommended_careers")
+}
+
+model counselor_availability {
+  id                 Int                  @id @default(autoincrement())
+  counselor_id       Int
+  date               DateTime
+  start_time         DateTime
+  end_time           DateTime
+  is_booked          Boolean              @default(false)
+  counselor          users                @relation(fields: [counselor_id], references: [id])
+  counselor_bookings counselor_bookings[]
+
+  @@map("counselor_availability")
+}
+
+model counselor_bookings {
+  id                        Int                    @id @default(autoincrement())
+  student_id                Int
+  counselor_id              Int
+  counselor_availability_id Int
+  date                      DateTime               @db.Date
+  start_time                DateTime               @db.Time(6)
+  end_time                  DateTime               @db.Time(6)
+  status                    String                 @default("pending")
+  type                      String?
+  location                  String?
+  created_at                DateTime               @default(now())
+  availability              counselor_availability @relation(fields: [counselor_availability_id], references: [id])
+  counselor                 users                  @relation("counselor_bookings", fields: [counselor_id], references: [id])
+  student                   users                  @relation("student_bookings", fields: [student_id], references: [id])
+  session_reports           session_reports[]
+
+  @@map("counselor_bookings")
+}
+
+model mentor_availability {
+  id              Int               @id @default(autoincrement())
+  mentor_id       Int
+  date            DateTime
+  start_time      DateTime
+  end_time        DateTime
+  is_booked       Boolean           @default(false)
+  mentor          users             @relation(fields: [mentor_id], references: [id])
+  mentor_bookings mentor_bookings[]
+
+  @@map("mentor_availability")
+}
+
+model mentor_bookings {
+  id                     Int                 @id @default(autoincrement())
+  student_id             Int
+  mentor_id              Int
+  mentor_availability_id Int
+  date                   DateTime            @db.Date
+  start_time             DateTime            @db.Time(6)
+  end_time               DateTime            @db.Time(6)
+  status                 String              @default("pending")
+  type                   String?
+  location               String?
+  created_at             DateTime            @default(now())
+  availability           mentor_availability @relation(fields: [mentor_availability_id], references: [id])
+  mentor                 users               @relation("mentor_bookings", fields: [mentor_id], references: [id])
+  student                users               @relation("student_mentor_bookings", fields: [student_id], references: [id])
+  session_reports        session_reports[]
+
+  @@map("mentor_bookings")
+}
+
+model session_reports {
+  id                    Int                 @id @default(autoincrement())
+  student_id            Int
+  counselor_id          Int?
+  mentor_id             Int?
+  session_date          DateTime            @db.Date
+  session_time          DateTime            @db.Time(6)
+  student_name          String?
+  counselor_name        String?
+  duration              Int
+  objective             String
+  topics_discussed      String
+  student_concerns      String?
+  strengths_identified  String?
+  areas_for_improvement String?
+  career_alignment      String?
+  action_items          String[]
+  recommendations       String[]
+  follow_up_plan        String?
+  additional_notes      String?
+  created_at            DateTime            @default(now())
+  counselor_booking_id  Int?
+  mentor_booking_id     Int?
+  counselor_bookings    counselor_bookings? @relation(fields: [counselor_booking_id], references: [id])
+  counselor             users?              @relation("CounselorSessions", fields: [counselor_id], references: [id])
+  mentor_bookings       mentor_bookings?    @relation(fields: [mentor_booking_id], references: [id])
+  mentor                users?              @relation("MentorSessions", fields: [mentor_id], references: [id])
+  student               users               @relation("StudentSessions", fields: [student_id], references: [id])
+
+  @@map("session_reports")
+}
+
+model user_levels {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  level_id     Int
+  is_completed Boolean   @default(false)
+  completed_at DateTime?
+  level        levels    @relation(fields: [level_id], references: [level_id])
+  users        users     @relation(fields: [user_id], references: [id])
+
+  @@map("user_levels")
+}
+
+model levels {
+  level_id    Int           @id @default(autoincrement())
+  name        String
+  description String
+  tasks       tasks[]
+  user_levels user_levels[]
+}
+
+model tasks {
+  task_id              Int                    @id @default(autoincrement())
+  level_id             Int
+  name                 String
+  description          String?
+  task_recommendations task_recommendations[]
+  level                levels                 @relation(fields: [level_id], references: [level_id])
+}
+
+model task_recommendations {
+  recommendation_id     Int      @id @default(autoincrement())
+  user_id               Int
+  task_id               Int
+  recommendations       String[]
+  recommendation_status String   @default("Pending")
+  task                  tasks    @relation(fields: [task_id], references: [task_id])
+  users                 users    @relation(fields: [user_id], references: [id])
+
+  @@map("task_recommendations")
+}
+
+model webex_tokens {
+  id            Int      @id @default(autoincrement())
+  user_id       Int      @unique
+  access_token  String
+  refresh_token String
+  expires_in    Int
+  token_type    String
+  created_at    DateTime @default(now())
+  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("webex_tokens")
+}
+
+model event_attendance {
+  id                Int       @id @default(autoincrement())
+  event_id          Int
+  user_id           Int
+  attendance_status Boolean   @default(false)
+  attendance_time   DateTime?
+  events            events    @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  users             users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([event_id, user_id])
+  @@map("event_attendance")
+}
+
+model institute_student {
+  id           Int      @id @default(autoincrement())
+  institute_id Int
+  student_id   Int
+  joined_at    DateTime @default(now())
+  institute    users    @relation("InstituteRelation", fields: [institute_id], references: [id])
+  student      users    @relation("StudentRelation", fields: [student_id], references: [id])
+
+  @@unique([institute_id, student_id])
+  @@map("institute_student")
+}
+
+model activity {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String
+  type        String
+  date        DateTime
+  created_at  DateTime   @default(now())
+  speaker     String?
+  instructor  String?
+  quizId      Int?
+  quiz        Quiz?      @relation("QuizActivities", fields: [quizId], references: [id])
+  responses   Response[]
+
+  @@map("activity")
+}
+
+model Quiz {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String
+  activities  activity[] @relation("QuizActivities")
+  questions   Question[]
+
+  @@map("quiz")
+}
+
+model Question {
+  id            Int        @id @default(autoincrement())
+  quizId        Int
+  question      String
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+  correctOption String
+  quiz          Quiz       @relation(fields: [quizId], references: [id])
+  responses     Response[]
+
+  @@map("question")
+}
+
+model Response {
+  id         Int      @id @default(autoincrement())
+  studentId  Int
+  activityId Int
+  questionId Int
+  answer     String
+  timestamp  DateTime @default(now())
+  activity   activity @relation(fields: [activityId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
+
+  @@map("response")
+}
+
+model school_students {
+  id        Int      @id @default(autoincrement())
+  name      String
+  enrolNo   String
+  schoolId  String
+  class     Int
+  createdAt DateTime @default(now())
+
+  institute institute_info @relation(fields: [schoolId], references: [institute_code])
+}
+
+model institute_info {
+  user_id         Int                       @id
+  name            String?
+  image_url       String?
+  plot_no         String?                   @db.VarChar(50)
+  street          String?                   @db.VarChar(100)
+  city            String?                   @db.VarChar(50)
+  state           String?                   @db.VarChar(50)
+  contact_number  String?
+  establish_year  Int?
+  institute_type  institute_type_enum
+  institute_board institute_board_type_enum
+  student_body    String?
+  website         String?
+  institute_code  String                    @unique
+  user            users                     @relation(fields: [user_id], references: [id])
+
+  school_students school_students[]
+}
+
+// model institute_info {
+//   user_id         Int                       @id
+//   name            String?
+//   image_url       String?
+//   plot_no         String?                   @db.VarChar(50)
+//   street          String?                   @db.VarChar(100)
+//   city            String?                   @db.VarChar(50)
+//   state           String?                   @db.VarChar(50)
+//   contact_number  String?
+//   establish_year  Int?
+//   institute_type  institute_type_enum
+//   institute_board institute_board_type_enum
+//   student_body    String?
+//   website         String?
+//   institute_code  String                    @unique
+//   //files           files_upload[]            @relation("InstituteFiles")
+//   user            users                     @relation(fields: [user_id], references: [id])
+
+//   @@map("institute_info")
+// }
+
+// model school_students {
+//   id        Int           @id @default(autoincrement())
+//   name      String
+//   enrolNo   String
+//   schoolId  String
+//   class     Int
+//   createdAt DateTime      @default(now())
+
+//   institute institute_info @relation(fields: [schoolId], references: [institute_code])
+
+//   @@map("school_students")
+// }
+
+// model institute_info {
+//   user_id         Int                       @id
+//   name            String?
+//   image_url       String?
+//   plot_no         String?                   @db.VarChar(50)
+//   street          String?                   @db.VarChar(100)
+//   city            String?                   @db.VarChar(50)
+//   state           String?                   @db.VarChar(50)
+//   contact_number  String?
+//   establish_year  Int?
+//   institute_type  institute_type_enum
+//   institute_board institute_board_type_enum
+//   student_body    String?
+//   website         String?
+//   institute_code  String                    @unique
+//   files           files_upload[]            @relation("InstituteFiles")
+//   user            users                     @relation(fields: [user_id], references: [id])
+
+//   @@map("institute_info")
+// }
+
+// model files_upload {
+//   id             Int               @id @default(autoincrement())
+//   classNumber    Int
+//   fileName       String
+//   uploadTime     DateTime          @default(now())
+//   instituteId    Int
+//   institute_info institute_info    @relation("InstituteFiles", fields: [instituteId], references: [user_id])
+//   // students       school_students[] @relation("FileToStudents")
+
+//   @@map("files_upload")
+// }
+
+// // model school_students {
+// //   id          Int          @id @default(autoincrement())
+// //   classNumber Int
+// //   name        String
+// //   enrolNo     String
+// //   schoolId    String
+// //   fileId      Int
+// //   file        files_upload @relation("FileToStudents", fields: [fileId], references: [id])
+
+// //   @@map("school_students")
+// // }
+// // model school_students {
+// //   id       Int    @id @default(autoincrement())
+// //   name     String
+// //   enrolNo  String
+// //   schoolId String
+// //   class    Int
+// //   createdAt DateTime @default(now())
+// // }
+
+// model school_students {
+//   id        Int           @id @default(autoincrement())
+//   name      String
+//   enrolNo   String
+//   schoolId  String
+//   class     Int
+//   createdAt DateTime      @default(now())
+
+//   institute institute_info @relation(fields: [schoolId], references: [institute_code])
+
+//   @@map("school_students")
+// }
+
+enum role_type {
+  student
+  counselor
+  institute
+  mentor
+}
+
+enum mentor_type_enum {
+  associate
+  chief
+}
+
+enum session_type_enum {
+  online
+  offline
+}
+
+enum institute_type_enum {
+  private
+  govt
+  semiGovt
+  public
+}
+
+enum gender_enum {
+  female
+  male
+  other
+}
+
+enum counselor_type_enum {
+  private
+  govt
+  fresher
+}
+
+enum counselor_specialization_type_enum {
+  mentalHealth
+  career
+  parenting
+}
+
+enum institute_board_type_enum {
+  cbse
+  icse
+  state
+  international
+}
+
+enum event_type_enum {
+  seminar
+  webinar
+  workshop
+}
+
+enum event_mode_enum {
+  online
+  offline
+  hybrid
+}
+
+enum event_requests_status_enum {
+  pending
+  accepted
+  rejected
+}
+
+model career_lens {
+  id              Int      @id @default(autoincrement())
+  name            String?  @unique
+  description     String?
+  skills          String[] @db.Text // Required list of strings
+  pros            String[] @db.Text // Required list of strings
+  cons            String[] @db.Text // Required list of strings
+  related_careers String[] @db.Text // Required list of strings
+  salary          String?  @db.Text
+  trend           String? // Optional scalar
+  min_salary      Int?
+  max_salary      Int?
+  median_salary   Int?
+  currency        String?  @db.VarChar(10)
+  period          String?  @db.VarChar(20)
+
+  @@map("career_lens")
+}
+
+model push_notification {
+  id         Int      @id @default(autoincrement())
+  message    String
+  created_at DateTime @default(now())
+  is_read    Boolean  @default(false)
+
+  @@map("push_notification")
+}

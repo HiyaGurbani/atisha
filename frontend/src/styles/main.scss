@@ -1,0 +1,316 @@
+// Global css file - applicable on all files across the app
+
+// Define color variables
+$primary-color: #0F67B1;
+$light-primary: #3FA2F6;
+$accent-one: #96C9F4;
+$accent-two: #EEF5FF;
+$gray-bg: #f3f3f3;
+$dark-gray-bg: #d9d9d9;
+
+$background-image: url("../assets/login_bg.jpg");
+
+.primary_color {
+  color: $primary-color;
+}
+
+.bg_primary_color {
+  background-color: $primary-color;
+}
+
+.light_primary_color {
+  color: $light-primary;
+}
+
+.bg_light_primary_color {
+  background-color: $light-primary;
+}
+
+.accent_one {
+  color: $accent-one;
+}
+
+.bg_accent_one {
+  background-color: $accent-one;
+}
+
+.accent_two {
+  color: $accent-two;
+}
+
+.bg_accent_two {
+  background-color: $accent-two;
+}
+
+.bg_gray {
+  background-color: $gray-bg;
+}
+
+.bg_dark_gray {
+  background-color: $dark-gray-bg;
+}
+
+// background for AuthPage.jsx
+.bg_authpage {
+  background-color: #fcfcfc;
+  background-image: $background-image;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  height: 100vh;
+}
+
+
+.preview-container {
+  flex: 1;
+  padding: 10px;
+  background-color: #fff !important; /* Make background transparent */
+  color: #000; /* Set text color for better visibility */
+}
+
+.preview-container h2 {
+  color: #000; /* Optional: Set header color */
+}
+
+/* Optional: Style for Markdown content */
+.markdown-preview {
+  background-color: transparent; /* Ensure markdown preview is also transparent */
+}
+
+//  HOME PAGE =============================================================================
+.center-2{
+  max-width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  // background-color: #6E6E6E;
+  border-radius: 2rem;
+}
+
+.home-height{
+  min-height: 80vh;
+}
+
+.headline {
+  background: linear-gradient(90deg, rgba(255,167,0,1) 0%, rgba(165,126,51,1) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  font-size: 2.65rem;
+  width: 85%;
+}
+
+//  Results page
+.res-box:hover{
+  background-color: $primary-color;
+  color: $gray-bg;
+}
+
+
+
+// Roadmap
+
+.roadmap {
+  &-container {
+    @apply transition-all duration-300 ease-in-out;
+
+    &:hover {
+      @apply transform scale-105;
+    }
+  }
+
+  &-title {
+    @apply relative;
+
+    &::after {
+      content: '';
+      @apply absolute bottom-0 left-0 h-1 w-20 bg-blue-500;
+    }
+  }
+}
+
+
+.heroSection {
+  position: relative;
+  overflow: hidden;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    opacity: 0.1;
+    animation: float 20s infinite ease-in-out;
+  }
+
+  &::before {
+    background-color: #60a5fa; // blue-400
+    top: -150px;
+    left: -150px;
+    animation-delay: -10s;
+  }
+
+  &::after {
+    background-color: #a78bfa; // purple-400
+    bottom: -150px;
+    right: -150px;
+  }
+}
+
+
+.gradientBackground {
+  background: linear-gradient(to bottom right, #e0f2fe, #ffffff, #f3e8ff);
+}
+
+.primaryBackground {
+  background-color: #3b82f6;
+}
+
+.lightPrimaryBackground {
+  background-color: #60a5fa;
+}
+
+.gradientButton {
+  background: linear-gradient(to right, #3b82f6, #60a5fa);
+  &:hover {
+    background: linear-gradient(to right, #2563eb, #3b82f6);
+  }
+}
+
+
+button {
+  all: unset;
+}
+
+.button {
+  position: relative;
+  display: inline-flex;
+  height: 3.5rem;
+  align-items: center;
+  border-radius: 9999px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  font-family: Segoe UI;
+  font-size: 1.2rem;
+  font-weight: 640;
+  color: #fafaf6;
+  letter-spacing: -0.06em;
+}
+
+.button-item {
+  background-color: transparent;
+  color: #1d1d1f;
+}
+
+.button-item .button-bg {
+  border-color: rgba(255, 208, 116);
+  background-color: rgba(255, 208, 116);
+}
+
+.button-inner,
+.button-inner-hover,
+.button-inner-static {
+  pointer-events: none;
+  display: block;
+}
+
+.button-inner {
+  position: relative;
+}
+
+.button-inner-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transform: translateY(70%);
+}
+
+.button-bg {
+  overflow: hidden;
+  border-radius: 2rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scale(1);
+  transition: transform 1.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.button-bg,
+.button-bg-layer,
+.button-bg-layers {
+  display: block;
+}
+
+.button-bg-layers {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
+  top: -60%;
+  aspect-ratio: 1 / 1;
+  width: max(200%, 10rem);
+}
+
+.button-bg-layer {
+  border-radius: 9999px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scale(0);
+}
+
+.button-bg-layer.-purple {
+  background-color: rgba(163, 116, 255);
+}
+
+.button-bg-layer.-turquoise {
+  background-color: rgba(23, 241, 209);
+}
+
+.button-bg-layer.-yellow {
+  --tw-bg-opacity: 1;
+  background-color: rgba(255, 208, 116, var(--tw-bg-opacity));
+}
+
+.button:hover .button-inner-static {
+  opacity: 0;
+  transform: translateY(-70%);
+  transition:
+    transform 1.4s cubic-bezier(0.19, 1, 0.22, 1),
+    opacity 0.3s linear;
+}
+
+.button:hover .button-inner-hover {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    transform 1.4s cubic-bezier(0.19, 1, 0.22, 1),
+    opacity 1.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.button:hover .button-bg-layer {
+  transition:
+    transform 1.3s cubic-bezier(0.19, 1, 0.22, 1),
+    opacity 0.3s linear;
+}
+
+.button:hover .button-bg-layer-1 {
+  transform: scale(1);
+}
+
+.button:hover .button-bg-layer-2 {
+  transition-delay: 0.1s;
+  transform: scale(1);
+}
+
+.button:hover .button-bg-layer-3 {
+  transition-delay: 0.2s;
+  transform: scale(1);
+}
+
